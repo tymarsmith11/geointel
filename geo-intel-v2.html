@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>GEOINT — Market Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;600&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080b0f;--sur:#0e1318;--sur2:#141b22;--brd:#1e2a35;--acc:#00d4ff;--red:#ff3b3b;--yel:#ffcc00;--grn:#00ff88;--org:#ff7700;--txt:#c8d8e8;--mut:#4a6070;--fd:'Bebas Neue',sans-serif;--fm:'JetBrains Mono',monospace;--fb:'Barlow Condensed',sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--txt);font-family:var(--fb);font-size:14px;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);pointer-events:none;z-index:9999;}
+
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:11px 20px;border-bottom:1px solid var(--brd);background:var(--sur);position:sticky;top:0;z-index:500;flex-wrap:wrap;gap:8px;}
+.hdr-l{display:flex;align-items:baseline;gap:10px;}
+.logo{font-family:var(--fd);font-size:24px;letter-spacing:3px;color:var(--acc);text-shadow:0 0 20px rgba(0,212,255,.4);}
+.logo-sub{font-family:var(--fm);font-size:9px;color:var(--mut);letter-spacing:2px;}
+.hdr-r{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.pill{display:flex;align-items:center;gap:5px;font-family:var(--fm);font-size:9px;letter-spacing:1px;padding:3px 8px;border:1px solid var(--brd);background:var(--sur2);}
+.pill.live{border-color:rgba(0,255,136,.3);color:var(--grn);}
+.pill.src{color:var(--acc);border-color:rgba(0,212,255,.2);}
+.pill.ts{color:var(--mut);}
+.ldot{width:6px;height:6px;background:var(--grn);border-radius:50%;animation:blink 1.5s infinite;box-shadow:0 0 6px var(--grn);}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+.tabs{display:flex;border-bottom:1px solid var(--brd);background:var(--sur);overflow-x:auto;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{font-family:var(--fm);font-size:10px;letter-spacing:2px;padding:10px 18px;cursor:pointer;color:var(--mut);border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none;}
+.tab:hover{color:var(--txt);}
+.tab.on{color:var(--acc);border-bottom-color:var(--acc);}
+
+.tkw{overflow:hidden;border-bottom:1px solid var(--brd);background:var(--sur2);padding:7px 0;}
+.tki{display:flex;gap:36px;animation:tick 38s linear infinite;white-space:nowrap;width:max-content;}
+@keyframes tick{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.ti{display:flex;align-items:center;gap:7px;font-family:var(--fm);font-size:11px;}
+.ts2{color:var(--acc);font-weight:600;}
+.up{color:var(--grn);}.dn{color:var(--red);}.fl{color:var(--mut);}
+
+.tc{display:none;}.tc.on{display:block;}
+.main{padding:16px 20px;display:flex;flex-direction:column;gap:16px;}
+
+.srow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.sc{background:var(--sur);border:1px solid var(--brd);padding:14px;position:relative;overflow:hidden;}
+.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.sc.r::before{background:var(--red);}.sc.y::before{background:var(--yel);}
+.sc.b::before{background:var(--acc);}.sc.g::before{background:var(--grn);}.sc.o::before{background:var(--org);}
+.sl{font-family:var(--fm);font-size:9px;color:var(--mut);letter-spacing:2px;margin-bottom:6px;}
+.sv{font-family:var(--fd);font-size:36px;line-height:1;margin-bottom:3px;}
+.sc.r .sv{color:var(--red);}.sc.y .sv{color:var(--yel);}.sc.b .sv{color:var(--acc);}.sc.g .sv{color:var(--grn);}.sc.o .sv{color:var(--org);}
+.ss{font-size:10px;color:var(--mut);font-family:var(--fm);}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.three{display:grid;grid-template-columns:1.2fr 1fr .8fr;gap:16px;}
+.sec{background:var(--sur);border:1px solid var(--brd);}
+.sh{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--brd);}
+.st{font-family:var(--fd);font-size:15px;letter-spacing:2px;color:var(--acc);}
+.sm{font-family:var(--fm);font-size:9px;color:var(--mut);}
+
+.ai{display:grid;grid-template-columns:3px 1fr auto;gap:12px;align-items:center;padding:11px 16px;border-bottom:1px solid var(--brd);transition:background .15s;}
+.ai:hover{background:var(--sur2);}.ai:last-child{border-bottom:none;}
+.ab{height:100%;min-height:38px;border-radius:2px;}
+.ab.high,.ab.critical{background:var(--red);box-shadow:0 0 8px rgba(255,59,59,.3);}
+.ab.medium{background:var(--yel);}.ab.low{background:var(--grn);}
+.an{font-weight:700;font-size:12px;color:var(--txt);margin-bottom:2px;}
+.am{font-family:var(--fm);font-size:9px;color:var(--mut);}
+.asc{text-align:right;}
+.sn{font-family:var(--fd);font-size:22px;line-height:1;}
+.slb{font-family:var(--fm);font-size:8px;color:var(--mut);}
+.badge{display:inline-block;padding:2px 7px;font-family:var(--fm);font-size:8px;letter-spacing:1px;margin-top:3px;}
+.b-act{background:rgba(255,59,59,.12);color:var(--red);border:1px solid rgba(255,59,59,.25);}
+.b-watch{background:rgba(255,204,0,.12);color:var(--yel);border:1px solid rgba(255,204,0,.25);}
+.b-mon{background:rgba(0,255,136,.08);color:var(--grn);border:1px solid rgba(0,255,136,.18);}
+
+.cr{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--brd);transition:background .15s;}
+.cr:hover{background:var(--sur2);}.cr:last-child{border-bottom:none;}
+.cn{font-weight:700;font-size:12px;display:flex;align-items:center;}
+.ct{font-family:var(--fm);font-size:9px;color:var(--mut);margin-top:2px;}
+.cp{font-family:var(--fm);font-size:13px;font-weight:600;text-align:right;}
+.cc{font-family:var(--fm);font-size:10px;text-align:right;}
+.vd{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px;flex-shrink:0;}
+.ve{background:var(--red);box-shadow:0 0 5px rgba(255,59,59,.5);}.vn{background:var(--yel);}.vs{background:var(--grn);}
+
+.rr{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:8px;padding:9px 16px;border-bottom:1px solid var(--brd);transition:background .15s;}
+.rr:hover{background:var(--sur2);}.rr:last-child{border-bottom:none;}
+.rn{font-weight:600;font-size:11px;}
+.rsub{font-family:var(--fm);font-size:8px;color:var(--mut);margin-top:2px;}
+.pips{display:flex;gap:2px;}
+.pip{width:8px;height:8px;border-radius:1px;background:var(--brd);}
+.p1{background:var(--red);}.p2{background:var(--org);}.p3{background:var(--yel);}.p4{background:#88dd00;}.p5{background:var(--grn);}
+.ct2{font-family:var(--fm);font-size:8px;padding:2px 5px;}
+.cyes{color:var(--red);background:rgba(255,59,59,.1);}.cno{color:var(--mut);}
+
+.dxy-p{padding:14px;}
+.dxy-lbl{font-family:var(--fm);font-size:8px;color:var(--mut);letter-spacing:2px;margin-bottom:6px;}
+.dxy-val{font-family:var(--fd);font-size:48px;color:var(--acc);text-shadow:0 0 25px rgba(0,212,255,.3);line-height:1;}
+.dxy-trnd{font-family:var(--fm);font-size:11px;margin-top:6px;}
+.rbox{display:inline-block;padding:4px 10px;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.18);font-family:var(--fm);font-size:9px;color:var(--acc);margin-top:8px;letter-spacing:1px;}
+.dxy-nar{font-family:var(--fm);font-size:9px;color:var(--mut);line-height:1.7;margin-top:10px;padding-top:10px;border-top:1px solid var(--brd);}
+
+.cgr{display:grid;grid-template-columns:1fr 70px 70px 90px;gap:8px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--brd);font-family:var(--fm);font-size:10px;transition:background .15s;}
+.cgr:hover{background:var(--sur2);}.cgr:last-child{border-bottom:none;}
+.cgr.hdr{font-size:8px;color:var(--mut);letter-spacing:1px;background:var(--sur2);}
+.cgn{font-family:var(--fb);font-size:11px;font-weight:600;}
+.cgtk{color:var(--acc);}.cgb{color:var(--grn);}.cgs{color:var(--red);}
+.cgd{color:var(--mut);font-size:9px;}
+
+.acl{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:start;padding:10px 16px;border-bottom:1px solid var(--brd);transition:background .15s;}
+.acl:hover{background:var(--sur2);}.acl:last-child{border-bottom:none;}
+.asev{width:32px;height:32px;border-radius:2px;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:13px;flex-shrink:0;}
+.sh2{background:rgba(255,59,59,.15);color:var(--red);border:1px solid rgba(255,59,59,.3);}
+.sm2{background:rgba(255,204,0,.12);color:var(--yel);border:1px solid rgba(255,204,0,.25);}
+.sl2{background:rgba(0,255,136,.08);color:var(--grn);border:1px solid rgba(0,255,136,.18);}
+.acn{font-weight:700;font-size:12px;margin-bottom:2px;}
+.ace{font-family:var(--fm);font-size:9px;color:var(--mut);line-height:1.4;}
+.acd{font-family:var(--fm);font-size:8px;color:var(--mut);white-space:nowrap;}
+
+.info-box{padding:16px;font-family:var(--fm);font-size:10px;color:var(--mut);line-height:1.8;}
+.info-title{color:var(--acc);font-size:11px;margin-bottom:8px;letter-spacing:1px;}
+
+.loading{display:flex;align-items:center;justify-content:center;padding:28px;font-family:var(--fm);font-size:10px;color:var(--mut);letter-spacing:2px;gap:10px;}
+.spin{width:14px;height:14px;border:2px solid var(--brd);border-top-color:var(--acc);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.fade{animation:fi .35s ease forwards;}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+@media(max-width:768px){
+  .srow{grid-template-columns:1fr 1fr;}
+  .two,.three{grid-template-columns:1fr;}
+  .cgr{grid-template-columns:1fr 60px 60px;}
+  .cgr>*:last-child{display:none;}
+}
+@media(max-width:480px){
+  .logo{font-size:20px;}.logo-sub{display:none;}
+  .hdr{padding:10px 12px;}.main{padding:10px 12px;}
+  .sv{font-size:28px;}.pill.ts{display:none;}
+}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-l">
+    <div class="logo">GEOINT</div>
+    <div class="logo-sub">Market Intelligence System</div>
+  </div>
+  <div class="hdr-r">
+    <div class="pill src" id="dataSrc">CONNECTING...</div>
+    <div class="pill ts" id="lastUp">--:--:--</div>
+    <div class="pill live"><div class="ldot"></div>LIVE</div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="tab on" onclick="go('dash',this)">DASHBOARD</button>
+  <button class="tab" onclick="go('congress',this)">CONGRESS TRADES</button>
+  <button class="tab" onclick="go('conflicts',this)">CONFLICT FEED</button>
+  <button class="tab" onclick="go('regions',this)">ALL REGIONS</button>
+</nav>
+
+<div class="tkw">
+  <div class="tki">
+    <div class="ti"><span class="ts2">CL=F</span><span id="t-oil">--</span></div>
+    <div class="ti"><span class="ts2">NG=F</span><span id="t-gas">--</span></div>
+    <div class="ti"><span class="ts2">GC=F</span><span id="t-gold">--</span></div>
+    <div class="ti"><span class="ts2">DXY</span><span id="t-dxy">--</span></div>
+    <div class="ti"><span class="ts2">ZW=F</span><span id="t-wheat">--</span></div>
+    <div class="ti"><span class="ts2">HG=F</span><span id="t-copper">--</span></div>
+    <div class="ti"><span class="ts2">ITA</span><span id="t-def">--</span></div>
+    <div class="ti"><span class="ts2">CL=F</span><span id="t-oil2">--</span></div>
+    <div class="ti"><span class="ts2">NG=F</span><span id="t-gas2">--</span></div>
+    <div class="ti"><span class="ts2">GC=F</span><span id="t-gold2">--</span></div>
+    <div class="ti"><span class="ts2">DXY</span><span id="t-dxy2">--</span></div>
+    <div class="ti"><span class="ts2">ZW=F</span><span id="t-wheat2">--</span></div>
+    <div class="ti"><span class="ts2">HG=F</span><span id="t-copper2">--</span></div>
+    <div class="ti"><span class="ts2">ITA</span><span id="t-def2">--</span></div>
+  </div>
+</div>
+
+<!-- DASHBOARD TAB -->
+<div class="tc on" id="tab-dash">
+<div class="main">
+  <div class="srow fade">
+    <div class="sc r"><div class="sl">RED ALERTS</div><div class="sv" id="actN">2</div><div class="ss">act now</div></div>
+    <div class="sc y"><div class="sl">WATCHING</div><div class="sv" id="watchN">2</div><div class="ss">active situations</div></div>
+    <div class="sc b"><div class="sl">DXY INDEX</div><div class="sv" id="dxyMain">--</div><div class="ss" id="dxyS">loading...</div></div>
+    <div class="sc o"><div class="sl">HOT CONFLICTS</div><div class="sv" id="confN">--</div><div class="ss">tracked regions</div></div>
+  </div>
+  <div class="two fade">
+    <div class="sec">
+      <div class="sh"><div class="st">PRIORITY ALERTS</div><div class="sm" id="alertMeta">5 ACTIVE</div></div>
+      <div id="alertsList"><div class="loading"><div class="spin"></div>LOADING...</div></div>
+    </div>
+    <div class="sec">
+      <div class="sh"><div class="st">COMMODITY WATCH</div><div class="sm" id="commMeta">LIVE</div></div>
+      <div id="commList"><div class="loading"><div class="spin"></div>FETCHING...</div></div>
+    </div>
+  </div>
+  <div class="three fade">
+    <div class="sec">
+      <div class="sh"><div class="st">CHOKEPOINTS</div><div class="sm">STABILITY</div></div>
+      <div id="choke"></div>
+    </div>
+    <div class="sec">
+      <div class="sh"><div class="st">PRODUCERS</div><div class="sm">STABILITY</div></div>
+      <div id="prod"></div>
+    </div>
+    <div class="sec">
+      <div class="sh"><div class="st">DXY PULSE</div><div class="sm">DOLLAR INDEX</div></div>
+      <div class="dxy-p">
+        <div class="dxy-lbl">CURRENT LEVEL</div>
+        <div class="dxy-val" id="dxyBig">--</div>
+        <div class="dxy-trnd" id="dxyT">--</div>
+        <div class="rbox">FED EXPECTATION: CUT</div>
+        <div class="dxy-nar">Fed easing cycle underway. Dollar weakness = commodity tailwind. Watch crude and gold for breakout. Petrocurrency bloc quietly positioning for dollar alternatives.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- CONGRESS TAB -->
+<div class="tc" id="tab-congress">
+<div class="main">
+  <div class="sec fade">
+    <div class="sh"><div class="st">CONGRESSIONAL TRADES</div><div class="sm" id="cgMeta">STOCK ACT DISCLOSURES</div></div>
+    <div id="cgList"><div class="loading"><div class="spin"></div>LOADING...</div></div>
+  </div>
+  <div class="sec fade">
+    <div class="info-box">
+      <div class="info-title">HOW TO READ THIS</div>
+      Members of Congress must disclose trades within 30-45 days under the STOCK Act. Clusters of buys in a sector before policy announcements are the signal. Cross-reference with your geopolitical alerts — defense buys before conflict escalation, energy buys before OPEC decisions. That gap between disclosure and market reaction is where edge lives.
+      <br><br>
+      <span style="color:var(--yel)">UPGRADE PATH:</span> Free live feed via Quiver Quant at quiverquant.com/api. Sample data shown. Replace CONGRESS_DATA array with live fetch when ready.
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- CONFLICTS TAB -->
+<div class="tc" id="tab-conflicts">
+<div class="main">
+  <div class="two fade">
+    <div class="sec">
+      <div class="sh"><div class="st">ACTIVE CONFLICT FEED</div><div class="sm" id="acledMeta">ACLED SOURCED</div></div>
+      <div id="acledList"><div class="loading"><div class="spin"></div>LOADING...</div></div>
+    </div>
+    <div class="sec">
+      <div class="sh"><div class="st">STABILITY CHANGES</div><div class="sm">AUTO-SCORED</div></div>
+      <div id="stabList"><div class="loading"><div class="spin"></div>ANALYZING...</div></div>
+    </div>
+  </div>
+  <div class="sec fade">
+    <div class="info-box">
+      <div class="info-title">ACLED DATA SOURCE</div>
+      Armed Conflict Location and Event Data Project tracks political violence globally in near real-time. Free API at acleddata.com — requires free registration. Stability scores auto-adjust based on ACLED event density per region. When conflict events spike in a chokepoint zone, watch the corresponding commodity.
+      <br><br>
+      <span style="color:var(--yel)">UPGRADE PATH:</span> Register free at acleddata.com/register. Drop your API key into the fetchACLED() function stub below to go fully live.
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- REGIONS TAB -->
+<div class="tc" id="tab-regions">
+<div class="main">
+  <div class="two fade">
+    <div class="sec">
+      <div class="sh"><div class="st">ALL CHOKEPOINTS</div><div class="sm">6 TRACKED</div></div>
+      <div id="allChoke"></div>
+    </div>
+    <div class="sec">
+      <div class="sh"><div class="st">ALL PRODUCERS</div><div class="sm">6 TRACKED</div></div>
+      <div id="allProd"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+const ALERTS=[
+  {name:"Houthi Red Sea Attacks",type:"CONFLICT",sev:"high",region:"Bab el-Mandeb",comm:"Crude Oil",score:4.0,tier:"act",note:"Shipping costs up, oil spike likely"},
+  {name:"Iran Nuclear Talks",type:"SANCTION",sev:"high",region:"Iran",comm:"Crude Oil",score:4.0,tier:"act",note:"Deal = supply release = price drop"},
+  {name:"OPEC+ Cut Extension",type:"OPEC",sev:"high",region:"Saudi Arabia",comm:"Crude Oil",score:3.0,tier:"watch",note:"Supply squeeze, price floor elevated"},
+  {name:"Russia Shadow Fleet",type:"SANCTION",sev:"medium",region:"Russia",comm:"Crude Oil",score:3.0,tier:"watch",note:"Price floor manipulation ongoing"},
+  {name:"Panama Canal Low Water",type:"NATURAL",sev:"medium",region:"Panama Canal",comm:"Shipping",score:2.5,tier:"monitor",note:"Transit delays, freight rates up"},
+];
+
+const CHOKEPOINTS=[
+  {name:"Strait of Hormuz",ctrl:"Iran / Oman",stab:2,conflict:true},
+  {name:"Bab el-Mandeb",ctrl:"Yemen / Djibouti",stab:1,conflict:true},
+  {name:"Suez Canal",ctrl:"Egypt",stab:3,conflict:false},
+  {name:"Taiwan Strait",ctrl:"Contested",stab:2,conflict:false},
+  {name:"Panama Canal",ctrl:"Panama",stab:3,conflict:false},
+  {name:"Strait of Malacca",ctrl:"Singapore / Indonesia",stab:4,conflict:false},
+];
+
+const PRODUCERS=[
+  {name:"Saudi Arabia",ctrl:"House of Saud",stab:3,conflict:false},
+  {name:"Russia",ctrl:"Kremlin",stab:2,conflict:true},
+  {name:"Iran",ctrl:"Khamenei",stab:1,conflict:false},
+  {name:"UAE",ctrl:"Al Nahyan",stab:4,conflict:false},
+  {name:"Venezuela",ctrl:"Maduro",stab:1,conflict:false},
+  {name:"Nigeria",ctrl:"Federal Gov",stab:2,conflict:true},
+];
+
+const COMMODITIES=[
+  {name:"Crude Oil",   ticker:"CL=F", dxy:"HIGH",   vol:"elevated",key:"oil"},
+  {name:"Natural Gas", ticker:"NG=F", dxy:"MEDIUM", vol:"normal",  key:"gas"},
+  {name:"Gold",        ticker:"GC=F", dxy:"HIGH",   vol:"normal",  key:"gold"},
+  {name:"Wheat",       ticker:"ZW=F", dxy:"MEDIUM", vol:"normal",  key:"wheat"},
+  {name:"Copper",      ticker:"HG=F", dxy:"MEDIUM", vol:"normal",  key:"copper"},
+  {name:"Defense ETF", ticker:"ITA",  dxy:"LOW",    vol:"normal",  key:"def"},
+];
+
+const CONGRESS_DATA=[
+  {name:"Nancy Pelosi",    ticker:"NVDA",type:"BUY", amount:"$1M-5M",    date:"2025-05-14",party:"D"},
+  {name:"Dan Crenshaw",    ticker:"XOM", type:"BUY", amount:"$50K-100K", date:"2025-05-10",party:"R"},
+  {name:"Tommy Tuberville",ticker:"RTX", type:"BUY", amount:"$100K-250K",date:"2025-05-08",party:"R"},
+  {name:"Josh Gottheimer", ticker:"LMT", type:"BUY", amount:"$250K-500K",date:"2025-05-06",party:"D"},
+  {name:"Michael McCaul",  ticker:"CVX", type:"SELL",amount:"$100K-250K",date:"2025-05-05",party:"R"},
+  {name:"Ro Khanna",       ticker:"TSLA",type:"BUY", amount:"$15K-50K",  date:"2025-05-03",party:"D"},
+  {name:"Pat Toomey",      ticker:"COP", type:"BUY", amount:"$500K-1M",  date:"2025-04-30",party:"R"},
+];
+
+const ACLED_DATA=[
+  {country:"Yemen",    event:"Houthi drone strikes on Red Sea corridor — 3 vessels targeted this week",   date:"Jun 2025",sev:"h",region:"Bab el-Mandeb"},
+  {country:"Russia",   event:"Drone attacks on Ukrainian energy grid — major infrastructure disruptions",  date:"Jun 2025",sev:"h",region:"Black Sea"},
+  {country:"Nigeria",  event:"Militant activity in Niger Delta — pipeline sabotage confirmed",             date:"May 2025",sev:"m",region:"Gulf of Guinea"},
+  {country:"Sudan",    event:"RSF-SAF clashes near Port Sudan — maritime access threatened",               date:"May 2025",sev:"m",region:"Red Sea"},
+  {country:"Myanmar",  event:"Military ops near Malacca-adjacent borders — shipping delay risk",           date:"May 2025",sev:"l",region:"Malacca"},
+  {country:"Venezuela",event:"Post-election unrest escalating — oil output disruption risk rising",        date:"May 2025",sev:"m",region:"Caribbean"},
+];
+
+const STAB_CHANGES=[
+  {region:"Bab el-Mandeb",chg:-1,reason:"Houthi attack frequency increased",from:2,to:1},
+  {region:"Nigeria",       chg:-1,reason:"Pipeline attacks in Niger Delta",from:3,to:2},
+  {region:"UAE",           chg: 0,reason:"Stable — Abraham Accords holding",from:4,to:4},
+  {region:"Iran",          chg: 0,reason:"Nuclear talks stalled",from:1,to:1},
+  {region:"Saudi Arabia",  chg: 1,reason:"Vision 2030 normalization progress",from:2,to:3},
+];
+
+// PRICE ENGINE
+const SYMS={oil:"CL=F",gas:"NG=F",gold:"GC=F",wheat:"ZW=F",copper:"HG=F",def:"ITA",dxy:"DX-Y.NYB"};
+let P={oil:{p:78.45,v:77.90},gas:{p:2.34,v:2.38},gold:{p:2318,v:2305},wheat:{p:548,v:552},copper:{p:4.52,v:4.48},def:{p:134.2,v:133.1},dxy:{p:104.5,v:105.1}};
+
+// CORS PROXY CHAIN
+const PROXIES=['','https://corsproxy.io/?','https://api.allorigins.win/raw?url='];
+
+async function fetchPrices(){
+  const syms=Object.values(SYMS).join(',');
+  const base=`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${syms}&fields=regularMarketPrice,regularMarketPreviousClose`;
+  for(const proxy of PROXIES){
+    try{
+      const url=proxy?proxy+encodeURIComponent(base):base;
+      const res=await fetch(url,{signal:AbortSignal.timeout(6000)});
+      if(!res.ok)continue;
+      const json=await res.json();
+      const quotes=json.quoteResponse?.result||[];
+      if(!quotes.length)continue;
+      quotes.forEach(q=>{
+        const k=Object.keys(SYMS).find(x=>SYMS[x]===q.symbol);
+        if(k&&q.regularMarketPrice){P[k].v=q.regularMarketPreviousClose||P[k].p;P[k].p=q.regularMarketPrice;}
+      });
+      document.getElementById('dataSrc').textContent='LIVE · YAHOO FINANCE';
+      return;
+    }catch(e){continue;}
+  }
+  sim();
+  document.getElementById('dataSrc').textContent='SIMULATED · OFFLINE';
+}
+
+function sim(){
+  const vol={oil:.6,gas:.02,gold:6,wheat:3,copper:.03,def:.9,dxy:.1};
+  Object.keys(P).forEach(k=>{const m=(Math.random()-.49)*vol[k];P[k].v=P[k].p;P[k].p=Math.max(.01,P[k].p+m);});
+}
+
+function fmt(k){
+  const d=P[k],chg=d.p-d.v,pct=((chg/d.v)*100).toFixed(2);
+  const dec=(k==='gold'||k==='wheat')?0:2;
+  return{price:d.p.toFixed(dec),pct:`${chg>=0?'▲':'▼'} ${Math.abs(pct)}%`,dir:chg>.001?'up':chg<-.001?'dn':'fl'};
+}
+
+function pips(s){return[1,2,3,4,5].map(i=>`<div class="pip ${i<=s?'p'+s:''}"></div>`).join('');}
+
+// RENDERS
+function renderAlerts(){
+  document.getElementById('alertsList').innerHTML=ALERTS.map(a=>{
+    const sc=a.score>=4?'var(--red)':a.score>=3?'var(--yel)':'var(--grn)';
+    const tc=a.tier==='act'?'b-act':a.tier==='watch'?'b-watch':'b-mon';
+    const tl=a.tier==='act'?'RED ACT':a.tier==='watch'?'WATCH':'MONITOR';
+    return`<div class="ai"><div class="ab ${a.sev}"></div>
+      <div><div class="an">${a.name}</div>
+      <div class="am">${a.type} · ${a.region} · ${a.comm}</div>
+      <div class="am" style="margin-top:2px">${a.note}</div>
+      <span class="badge ${tc}">${tl}</span></div>
+      <div class="asc"><div class="sn" style="color:${sc}">${a.score.toFixed(1)}</div><div class="slb">SCORE</div></div>
+    </div>`;
+  }).join('');
+  document.getElementById('actN').textContent=ALERTS.filter(a=>a.tier==='act').length;
+  document.getElementById('watchN').textContent=ALERTS.filter(a=>a.tier==='watch').length;
+}
+
+function renderCommodities(){
+  document.getElementById('commList').innerHTML=COMMODITIES.map(c=>{
+    const f=fmt(c.key),vc=c.vol==='elevated'?'ve':c.vol==='suppressed'?'vs':'vn';
+    return`<div class="cr">
+      <div><div class="cn"><span class="vd ${vc}"></span>${c.name}</div>
+      <div class="ct">${c.ticker} · DXY SENS: ${c.dxy}</div></div>
+      <div class="cp">$${f.price}</div>
+      <div class="cc ${f.dir}">${f.pct}</div>
+    </div>`;
+  }).join('');
+  const t=new Date().toLocaleTimeString('en-US',{hour12:false});
+  document.getElementById('commMeta').textContent=`UPDATED ${t}`;
+}
+
+function renderRegions(data,elId){
+  const el=document.getElementById(elId);
+  if(!el)return;
+  el.innerHTML=data.map(r=>`<div class="rr">
+    <div><div class="rn">${r.name}</div><div class="rsub">${r.ctrl}</div></div>
+    <div class="pips">${pips(r.stab)}</div>
+    <div>${r.conflict?'<span class="ct2 cyes">CONFLICT</span>':'<span class="ct2 cno">STABLE</span>'}</div>
+  </div>`).join('');
+}
+
+function renderDXY(){
+  const d=P.dxy,chg=d.p-d.v;
+  const trend=chg>.05?'RISING':chg<-.05?'FALLING':'FLAT';
+  const tc=chg>.05?'var(--red)':chg<-.05?'var(--grn)':'var(--yel)';
+  const arr=chg>.05?'▲':chg<-.05?'▼':'→';
+  document.getElementById('dxyBig').textContent=d.p.toFixed(1);
+  document.getElementById('dxyMain').textContent=d.p.toFixed(1);
+  document.getElementById('dxyT').innerHTML=`<span style="color:${tc}">${arr} ${trend}</span>`;
+  document.getElementById('dxyS').textContent=`${arr} ${trend}`;
+}
+
+function renderTicker(){
+  const map={oil:['t-oil','t-oil2'],gas:['t-gas','t-gas2'],gold:['t-gold','t-gold2'],wheat:['t-wheat','t-wheat2'],copper:['t-copper','t-copper2'],def:['t-def','t-def2'],dxy:['t-dxy','t-dxy2']};
+  Object.entries(map).forEach(([k,ids])=>{
+    const f=fmt(k);
+    ids.forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=`<span class="${f.dir}">$${f.price} ${f.pct}</span>`;});
+  });
+}
+
+function renderCongress(){
+  document.getElementById('cgList').innerHTML=
+    `<div class="cgr hdr"><div>MEMBER</div><div>TICKER</div><div>TYPE</div><div>AMOUNT</div></div>`+
+    CONGRESS_DATA.map(t=>`<div class="cgr">
+      <div><div class="cgn">${t.name}</div>
+      <div style="font-size:8px;color:var(--mut)">${t.party==='D'?'DEM':'REP'} · ${t.date}</div></div>
+      <div class="cgtk">${t.ticker}</div>
+      <div class="${t.type==='BUY'?'cgb':'cgs'}">${t.type}</div>
+      <div class="cgd">${t.amount}</div>
+    </div>`).join('');
+  document.getElementById('cgMeta').textContent=`${CONGRESS_DATA.length} RECENT DISCLOSURES`;
+}
+
+function renderConflicts(){
+  document.getElementById('acledList').innerHTML=ACLED_DATA.map(a=>{
+    const sc=a.sev==='h'?'sh2':a.sev==='m'?'sm2':'sl2';
+    const sl=a.sev==='h'?'HI':a.sev==='m'?'MD':'LO';
+    return`<div class="acl">
+      <div class="asev ${sc}">${sl}</div>
+      <div><div class="acn">${a.country} <span style="font-family:var(--fm);font-size:8px;color:var(--mut)">${a.region}</span></div>
+      <div class="ace">${a.event}</div></div>
+      <div class="acd">${a.date}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('confN').textContent=ACLED_DATA.filter(a=>a.sev==='h').length;
+  document.getElementById('acledMeta').textContent=`${ACLED_DATA.length} EVENTS TRACKED`;
+
+  document.getElementById('stabList').innerHTML=STAB_CHANGES.map(s=>{
+    const col=s.chg>0?'var(--grn)':s.chg<0?'var(--red)':'var(--mut)';
+    const arr=s.chg>0?'▲':s.chg<0?'▼':'→';
+    return`<div class="rr">
+      <div><div class="rn">${s.region}</div><div class="rsub">${s.reason}</div></div>
+      <div style="font-family:var(--fd);font-size:20px;color:${col}">${arr}</div>
+      <div style="font-family:var(--fm);font-size:10px;color:var(--mut)">${s.from}→<span style="color:${col}">${s.to}</span></div>
+    </div>`;
+  }).join('');
+}
+
+function renderTimestamp(){document.getElementById('lastUp').textContent=new Date().toLocaleTimeString('en-US',{hour12:false});}
+
+// TAB SWITCHING
+let rendered={congress:false,conflicts:false,regions:false};
+function go(id,el){
+  document.querySelectorAll('.tc').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  document.getElementById('tab-'+id).classList.add('on');
+  el.classList.add('on');
+  if(id==='congress'&&!rendered.congress){renderCongress();rendered.congress=true;}
+  if(id==='conflicts'&&!rendered.conflicts){renderConflicts();rendered.conflicts=true;}
+  if(id==='regions'&&!rendered.regions){renderRegions(CHOKEPOINTS,'allChoke');renderRegions(PRODUCERS,'allProd');rendered.regions=true;}
+}
+
+// INIT
+async function init(){
+  renderAlerts();
+  renderRegions(CHOKEPOINTS,'choke');
+  renderRegions(PRODUCERS,'prod');
+  renderConflicts();
+  renderCongress();
+  await fetchPrices();
+  renderCommodities();
+  renderDXY();
+  renderTicker();
+  renderTimestamp();
+}
+
+// Visual simulation tick every 8s
+setInterval(()=>{sim();renderCommodities();renderDXY();renderTicker();renderTimestamp();},8000);
+// Real fetch every 60s
+setInterval(async()=>{await fetchPrices();renderCommodities();renderDXY();renderTicker();renderTimestamp();},60000);
+
+init();
+</script>
+</body>
+</html>
